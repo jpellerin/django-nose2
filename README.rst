@@ -20,4 +20,5 @@ example, to turn on output buffering::
 
   manage.py test -v 2 -- -B
 
-(But really, almost all of the time, you'll want to put those in a config file).
+(But really, almost all of the time, you'll want to put your nose2
+configuration in a config file).

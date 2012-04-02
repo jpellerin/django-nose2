@@ -4,22 +4,26 @@ from contextlib import contextmanager
 import logging
 
 from django.test import simple
-from nose2.main import PluggableTestProgram
+from nose2.main import discover
+
+
+log = logging.getLogger(__name__)
 
 
 class TestRunner(simple.DjangoTestSuiteRunner):
 
     err_count = 0
-    _hooks = ['startTestRun', 'reportFailure', 'reportError']
+    _hooks = ('startTestRun', 'reportFailure', 'reportError')
 
     def hooks(self):
         return [(hook, self) for hook in self._hooks]
 
     def run_tests(self, test_labels, extra_tests=None, **kwargs):
+        log.debug('Running tests with nose2')
         self.extra_tests = extra_tests
         with self.test_environment():
             argv = self.make_argv(test_labels)
-            TestProgram(argv=argv, module=None, exit=False, hooks=self.hooks())
+            discover(argv=argv, exit=False, extraHooks=self.hooks())
             return self.err_count
 
     def make_argv(self, test_labels):
@@ -42,13 +46,15 @@ class TestRunner(simple.DjangoTestSuiteRunner):
     def test_environment(self):
         self.setup_test_environment()
         old_config = self.setup_databases()
+        log.debug("Django test environment set up")
         try:
             yield
         finally:
             self.teardown_databases(old_config)
             self.teardown_test_environment()
+            log.debug("Django test environment torn down")
 
-    # plugin hooks I handle myself
+    # plugin hooks the runner handles
     def startTestRun(self, event):
         if self.extra_tests is None:
             return
@@ -60,14 +66,3 @@ class TestRunner(simple.DjangoTestSuiteRunner):
 
     def reportError(self, event):
         self.reportFailure(event)
-
-
-class TestProgram(PluggableTestProgram):
-    def __init__(self, **kw):
-        self.hooks = kw.pop('hooks', [])
-        super(TestProgram, self).__init__(**kw)
-
-    def loadPlugins(self):
-        super(TestProgram, self).loadPlugins()
-        for method_name, call in self.hooks:
-            self.session.hooks.register(method_name, call)
