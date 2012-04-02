@@ -36,7 +36,7 @@ setup(
     name='django-nose2',
     author='Jason Pellerin',
     author_email='jpellerin+nose@gmail.com',
-    version='0.1',
+    version='0.1.1',
     url='https://github.com/jpellerin/django-nose2',
     description='Test runner for django that runs tests with nose2',
     long_description=README,
