@@ -8,7 +8,7 @@ Usage
 
 In your settings module, set::
 
-  TEST_RUNNER=djnose2.TestRunner
+  TEST_RUNNER="djnose2.TestRunner"
 
 Then ``manage.py test`` will run nose2's test runner.
 
